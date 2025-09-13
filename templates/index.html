@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Weather app🌤️</h1>
+
+        <form id="searchForm">
+            <input type="text" id="city" placeholder="Enter a city" required>
+            <button type="submit">Get weather</button>
+        </form>
+
+        <div id="message"></div>
+        
+        <div id="results" class="hidden">
+        <h2 id="cityName"></h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Temp (°C)</th>
+                    <th>Feels like (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Rain Chance (%)</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('searchForm');
+        const cityInput = document.getElementById('city');
+        const message = document.getElementById('message');
+        const resultsDiv = document.getElementById('results');
+        const cityNameEl = document.getElementById('cityName');
+        const tbody = document.querySelector("tbody");
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const city = cityInput.value.trim();
+            if (!city) return;
+            message.textContent = "Loading...";
+            resultsDiv.classList.add('hidden');
+
+        try {
+            const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+
+            
+            const data = await res.json();
+            if (!data.list || data.list.length === 0) {
+                message.textContent = "No data found";
+                return;
+            }
+            tbody.innerHTML = "";
+            cityNameEl.textContent = data.city;
+            
+            data.list.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                <td>${item.dt_txt}</td>
+            <td>${item.temp.toFixed(1)}</td>
+            <td>${item.feels_like.toFixed(1)}</td>
+            <td>${item.humidity}</td>
+            <td>${(item.pop*100).toFixed(0)}</td>`;
+            tbody.appendChild(tr);
+            });
+            message.textContent = "";
+            resultsDiv.classList.remove("hidden");
+
+
+        }
+        catch(err) {
+            message.textContent = "Error" + err.message;
+        }
+
+        });
+
+    </script>
+</body>
+</html>
