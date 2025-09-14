@@ -107,7 +107,8 @@ r.GET("/api/weather", func(c *gin.Context) { ////It gives you access to the requ
 
 	
 })
-r.Run(":8080")
+r.Run(":30033") // explicitly run on port 30033
+
 }
 
 
